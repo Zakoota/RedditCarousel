@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Reddit Carousel</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
+    <style>
+        .container,
+        .container-fluid,
+        body {
+            background-color: #000 !important
+        }
+
+        .my-cor {
+            display: grid;
+            min-height: 70%
+        }
+
+        .my-cor img {
+            max-width: 100%;
+            max-height: 75vh;
+            margin: auto
+        }
+
+        .my-cor p {
+            position: relative;
+            color: #fff;
+            text-align: center;
+            bottom: 30px
+        }
+
+        .cor-nav p {
+            display: none
+        }
+
+        .cor-nav .slick-slide {
+            min-height: 18vh !important
+        }
+
+        .cor-nav img {
+            max-height: 100%;
+            position: absolute;
+            top: 0;
+            margin: auto
+        }
+
+        #imageZoomContent img {
+            width: 98vw;
+        }
+
+        #imageZoomContent p {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p><![endif]-->
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="my-cor my-caro"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="d-none d-md-block offset-2 col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                <div class="cor-nav my-caro"></div>
+            </div>
+        </div>
+    </div>
+    <div id="imageZoom" class="modal">
+        <!-- The Close Button -->
+        <span data-dismiss="modal" class="close">&times;</span>
+        <div id="imageZoomContent"></div>
+    </div>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+    <script>
+        let sli_cor = [],
+            aft = null,
+            uname = "",
+            dataCalled = false;
+        $(document).ready(function () {
+            $("body").keydown(function (e) {
+                e.keyCode && sli_cor.length > 0 && (e.keyCode == 37 || e.keyCode == 39) && sli_cor
+                    .forEach((sli) => {
+                        $('#imageZoom').modal('hide');
+                        switch (e.keyCode) {
+                            case 37:
+                                sli.slickPrev();
+                                break;
+                            case 39:
+                                sli.slickNext();
+                                break
+                        }
+                    })
+            });
+            $('.my-caro').on('init', function (e, slick) {
+                sli_cor.push(slick);
+                if (sli_cor.length > 1) {
+                    swal.fire({
+                        title: 'Enter Reddit name',
+                        input: 'text',
+                        inputAttributes: {
+                            autocapitalize: 'off'
+                        },
+                        showCancelButton: !1,
+                        confirmButtonText: 'Go',
+                        showLoaderOnConfirm: !0,
+                        preConfirm: (username) => {
+                            uname = username;
+                            return fetch(
+                                `https://www.reddit.com/${username}/.json?limit=15&after=${aft}`
+                            ).then(response => {
+                                if (!response.ok) {
+                                    throw new Error(response.statusText)
+                                }
+                                return response.json()
+                            }).catch(error => {
+                                Swal.showValidationMessage(
+                                    `Request failed: ${error}`)
+                            })
+                        },
+                        allowOutsideClick: () => 0
+                    }).then((data) => {
+                        data = data.value;
+                        if (data.error) {
+                            Swal.showValidationMessage(`Request failed: ${data.message}`)
+                        } else if (data.data && data.data.children && data.data.children
+                            .length > 0) {
+                            addSlides(data)
+                        } else {
+                            Swal.showValidationMessage(
+                                "Request failed: No posts found for this user")
+                        }
+                    })
+                }
+            });
+            $('.my-cor').on('afterChange', function (event, slick) {
+                if ((slick.currentSlide + 5) >= slick.slideCount) {
+                    fetchSlides()
+                }
+            });
+            $('.my-cor').on('edge', function (event, slick) {
+                fetchSlides()
+            });
+            $('.my-cor').slick({
+                accessibility: !0,
+                infinite: !1,
+                lazyLoad: 'ondemand',
+                asNavFor: '.cor-nav',
+                mobileFirst: !0,
+                dots: !1,
+                arrows: !1
+            });
+            $('.cor-nav').slick({
+                accessibility: !0,
+                mobileFirst: !0,
+                infinite: !1,
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                asNavFor: '.my-cor',
+                dots: !1,
+                centerMode: !0,
+                focusOnSelect: !0,
+                adoptiveHeight: !0
+            })
+
+            $(document).on('click', '.my-cor img, #imageZoomContent img', function () {
+                $('#imageZoomContent').html($(this).closest('div').html());
+                $('#imageZoom').modal('toggle');
+            });
+        });
+
+        function addSlides(data) {
+            data = data.data;
+            aft = data.after ? data.after : 'EOF';
+            let postArr = [];
+            data.children.length > 0 &&
+                data.children.forEach((post) => {
+                    post = post.data;
+                    if (post.url && post.url.match(/\.\w{3}$/m)) {
+                        postArr.push(post)
+                    }
+                });
+            postArr.length < 3 && fetchSlides();
+            postArr.length && postArr.forEach((post) => {
+                sli_cor.forEach(function (sli) {
+                    sli.slickAdd('<div><img data-lazy="' + post.url + '" /><p>' + post.title +
+                        '</p></div>')
+                })
+            });
+            aft == "EOF" && sli_cor.forEach(function (sli) {
+                sli.slickAdd(
+                    '<div style="text-align: center;position: relative;top: 150px;"><h1>THE END<h1></div>')
+            });
+            dataCalled = false;
+        }
+
+        function fetchSlides() {
+            if (aft != 'EOF' && !dataCalled) {
+                dataCalled = true;
+                fetch(`https://www.reddit.com/${uname}/.json?limit=15&after=${aft}`).then(response => {
+                    if (!response.ok) {
+                        throw new Error(response.statusText)
+                    }
+                    return response.json()
+                }).then(data => addSlides(data)).catch(error => {
+                    Swal.showValidationMessage(`Request failed: ${error}`)
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>
