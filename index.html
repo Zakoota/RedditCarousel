@@ -117,7 +117,7 @@
                 if (sli_cor.length > 1) {
                     swal.fire({
                         title: 'Enter Reddit name',
-						text: 'e.g. user/xyz or r/all',
+                        text: 'e.g. user/xyz or r/all',
                         input: 'text',
                         inputAttributes: {
                             autocapitalize: 'off'
@@ -127,17 +127,27 @@
                         showLoaderOnConfirm: !0,
                         preConfirm: (username) => {
                             uname = username;
-                            return fetch(
-                                `https://www.reddit.com/${username}/.json?limit=15&after=${aft}`
-                            ).then(response => {
-                                if (!response.ok) {
-                                    throw new Error(response.statusText)
+                            if (username && username.match(/user\/[\d\w]+|r\/[\d\w]+/g)) {
+                                return fetch(
+                                    `https://www.reddit.com/${username}/.json?limit=15&after=${aft}`
+                                ).then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(response.status)
+                                    }
+                                    return response.json()
+                                }).catch(error => {
+                                    Swal.showValidationMessage(
+                                        `Request failed: ${error}`)
+                                })
+                            }else{
+                                if(!username){
+                                    Swal.showValidationMessage(
+                                    `Name field cannot be empty!`);
+                                }else{
+                                    Swal.showValidationMessage(
+                                    `Invalid format, please provide Reddit name as user/xyz or r/xyz`);
                                 }
-                                return response.json()
-                            }).catch(error => {
-                                Swal.showValidationMessage(
-                                    `Request failed: ${error}`)
-                            })
+                            }
                         },
                         allowOutsideClick: () => 0
                     }).then((data) => {
@@ -197,7 +207,7 @@
             data.children.length > 0 &&
                 data.children.forEach((post) => {
                     post = post.data;
-                    if (post.url && post.url.match(/\.\w{3}$/m)) {
+                    if (post.url && post.url.match(/\.\w{3,4}$/m)) {
                         postArr.push(post)
                     }
                 });
