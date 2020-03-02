@@ -64,12 +64,43 @@
         #imageZoomContent p {
             display: none;
         }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            display: none;
+            z-index: 9999;
+
+            position: fixed;
+            top: -100%;
+            right: -100%;
+            left: -100%;
+            bottom: -100%;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body>
     <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p><![endif]-->
     <div class="container">
+        <div class="loader"></div>
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="my-cor my-caro"></div>
@@ -93,6 +124,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
     <script>
         let sli_cor = [],
+            allowedExt = [".jpeg", ".jpg", ".png", ".gif"],
             aft = null,
             uname = "",
             dataCalled = false;
@@ -116,7 +148,7 @@
                 if (sli_cor.length > 1) {
                     swal.fire({
                         title: 'Enter Reddit name',
-                        text: 'e.g. user/xyz or r/all',
+                        text: 'e.g. u/xyz or r/all',
                         input: 'text',
                         inputAttributes: {
                             autocapitalize: 'off'
@@ -128,11 +160,19 @@
                             if (username.substr(0, 1) == '/') {
                                 username = username.substr(1);
                             }
+                            if (username.substr(0, 2) == 'r/') {
+                                username = username + "/new";
+                            } else {
+                                username = username + '/submitted';
+                            }
+                            if (username.substr(0, 2) == 'u/') {
+                                username = "user/" + username.substr(2);
+                            }
                             username = username.replace(/\s+/gm, '');
                             uname = username;
                             if (username && username.match(/user\/[\d\w]+|r\/[\d\w]+/g)) {
                                 return fetch(
-                                    `https://www.reddit.com/${username}/.json?limit=15&after=${aft}`
+                                    `https://www.reddit.com/${username}/.json?limit=15&after=${aft}&sort=new`
                                 ).then(response => {
                                     if (!response.ok) {
                                         throw new Error(response.status)
@@ -148,7 +188,7 @@
                                         `Name field cannot be empty!`);
                                 } else {
                                     Swal.showValidationMessage(
-                                        `Invalid format, please provide Reddit name as user/xyz or r/xyz`
+                                        `Invalid format, please provide Reddit name as u/xyz or r/xyz`
                                     );
                                 }
                             }
@@ -206,13 +246,15 @@
         });
 
         function addSlides(data) {
+            $('.loader').hide();
             data = data.data;
             aft = data.after ? data.after : 'EOF';
             let postArr = [];
             data.children.length > 0 &&
                 data.children.forEach((post) => {
                     post = post.data;
-                    if (post.url && post.url.match(/\.\w{3,4}$/m)) {
+                    let m = post.url.match(/\.\w{3,4}$/m);
+                    if (post.url && m && allowedExt.includes(m[0])) {
                         postArr.push(post)
                     }
                 });
@@ -233,7 +275,8 @@
         function fetchSlides() {
             if (aft != 'EOF' && !dataCalled) {
                 dataCalled = true;
-                fetch(`https://www.reddit.com/${uname}/.json?limit=15&after=${aft}`).then(response => {
+                $('.loader').show();
+                fetch(`https://www.reddit.com/${uname}/.json?limit=15&after=${aft}&sort=new`).then(response => {
                     if (!response.ok) {
                         throw new Error(response.statusText)
                     }
