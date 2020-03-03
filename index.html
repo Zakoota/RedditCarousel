@@ -267,15 +267,16 @@
                             if (username.substr(0, 1) == '/') {
                                 username = username.substr(1);
                             }
-                            if (username.substr(0, 2) == 'r/') {
-                                if (username.indexOf('?') > 0) {
-                                    let arr = username.split('?');
-                                    username = arr[0];
-                                    params = arr[1];
-                                }
+                            if (username.substr(0, 2) == 'm/') {
+                                username = "user/" + username.substr(2);
                             } else {
                                 username = username + '/submitted';
-                                params = "sort=new";
+                                params = "&sort=new";
+                            }
+                            if (username.indexOf('?') > 0) {
+                                let arr = username.split('?');
+                                username = arr[0];
+                                params += "&" + arr[1];
                             }
                             if (username.substr(0, 2) == 'u/') {
                                 username = "user/" + username.substr(2);
@@ -284,7 +285,7 @@
                             uname = username;
                             if (username && username.match(/user\/[\d\w]+|r\/[\d\w]+/g)) {
                                 return fetch(
-                                    `https://www.reddit.com/${username}/.json?limit=15&after=${aft}&${params}`
+                                    `https://www.reddit.com/${username}/.json?limit=15&after=${aft}${params}`
                                 ).then(response => {
                                     if (!response.ok) {
                                         throw new Error(response.status)
@@ -393,7 +394,7 @@
             if (aft != 'EOF' && !dataCalled) {
                 dataCalled = true;
                 $('.loader').show();
-                fetch(`https://www.reddit.com/${uname}/.json?limit=15&after=${aft}&${params}`).then(response => {
+                fetch(`https://www.reddit.com/${uname}/.json?limit=15&after=${aft}${params}`).then(response => {
                     if (!response.ok) {
                         throw new Error(response.status)
                     }
