@@ -253,72 +253,97 @@
             $('.my-caro').on('init', function (e, slick) {
                 sli_cor.push(slick);
                 if (sli_cor.length > 1) {
-                    swal.fire({
-                        title: 'Enter Reddit name',
-                        text: 'e.g. u/xyz or r/all',
-                        input: 'text',
-                        inputAttributes: {
-                            autocapitalize: 'off'
-                        },
-                        showCancelButton: !1,
-                        confirmButtonText: 'Go',
-                        showLoaderOnConfirm: !0,
-                        preConfirm: (username) => {
-                            if (username.substr(0, 1) == '/') {
-                                username = username.substr(1);
-                            }
-                            if (username.substr(0, 2) == 'm/') {
-                                username = "user/" + username.substr(2);
-                            } else {
-                                username = username + '/submitted';
-                                params = "&sort=new";
-                            }
-                            if (username.indexOf('?') > 0) {
-                                let arr = username.split('?');
-                                username = arr[0];
-                                params += "&" + arr[1];
-                            }
-                            if (username.substr(0, 2) == 'u/') {
-                                username = "user/" + username.substr(2);
-                            }
-                            username = username.replace(/\s+/gm, '');
-                            uname = username;
-                            if (username && username.match(/user\/[\d\w]+|r\/[\d\w]+/g)) {
-                                return fetch(
-                                    `https://www.reddit.com/${username}/.json?limit=15&after=${aft}${params}`
-                                ).then(response => {
-                                    if (!response.ok) {
-                                        throw new Error(response.status)
-                                    }
-                                    return response.json()
-                                }).catch(error => {
-                                    Swal.showValidationMessage(
-                                        `Request failed: ${error}`)
-                                })
-                            } else {
-                                if (!username) {
-                                    Swal.showValidationMessage(
-                                        `Name field cannot be empty!`);
-                                } else {
-                                    Swal.showValidationMessage(
-                                        `Invalid format, please provide Reddit name as u/xyz or r/xyz`
-                                    );
-                                }
-                            }
-                        },
-                        allowOutsideClick: () => 0
-                    }).then((data) => {
-                        data = data.value;
-                        if (data.error) {
-                            Swal.showValidationMessage(`Request failed: ${data.message}`)
-                        } else if (data.data && data.data.children && data.data.children
-                            .length > 0) {
-                            addSlides(data)
-                        } else {
-                            Swal.showValidationMessage(
-                                "Request failed: No posts found for this user")
+                    if (window.location.href.indexOf('#') > 0) {
+                        username = window.location.href.substr(window.location.href.indexOf('#') + 1);
+                        if (username.substr(0, 1) == '/') {
+                            username = username.substr(1);
                         }
-                    })
+                        if (username.substr(0, 2) == 'm/') {
+                            username = "user/" + username.substr(2);
+                        } else {
+                            username = username + '/submitted';
+                            params = "&sort=new";
+                        }
+                        if (username.indexOf('?') > 0) {
+                            let arr = username.split('?');
+                            username = arr[0];
+                            params += "&" + arr[1];
+                        }
+                        if (username.substr(0, 2) == 'u/') {
+                            username = "user/" + username.substr(2);
+                        }
+                        username = username.replace(/\s+/gm, '');
+                        uname = username;
+                        fetchSlides();
+                    } else {
+                        swal.fire({
+                            title: 'Enter Reddit name',
+                            text: 'e.g. u/xyz or r/all',
+                            input: 'text',
+                            inputAttributes: {
+                                autocapitalize: 'off'
+                            },
+                            showCancelButton: !1,
+                            confirmButtonText: 'Go',
+                            showLoaderOnConfirm: !0,
+                            preConfirm: (username) => {
+                                if (username.substr(0, 1) == '/') {
+                                    username = username.substr(1);
+                                }
+                                if (username.substr(0, 2) == 'm/') {
+                                    username = "user/" + username.substr(2);
+                                } else {
+                                    username = username + '/submitted';
+                                    params = "&sort=new";
+                                }
+                                if (username.indexOf('?') > 0) {
+                                    let arr = username.split('?');
+                                    username = arr[0];
+                                    params += "&" + arr[1];
+                                }
+                                if (username.substr(0, 2) == 'u/') {
+                                    username = "user/" + username.substr(2);
+                                }
+                                username = username.replace(/\s+/gm, '');
+                                uname = username;
+                                if (username && username.match(
+                                        /user\/[\d\w]+|r\/[\d\w]+/g)) {
+                                    return fetch(
+                                        `https://www.reddit.com/${username}/.json?limit=15&after=${aft}${params}`
+                                    ).then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(response.status)
+                                        }
+                                        return response.json()
+                                    }).catch(error => {
+                                        Swal.showValidationMessage(
+                                            `Request failed: ${error}`)
+                                    })
+                                } else {
+                                    if (!username) {
+                                        Swal.showValidationMessage(
+                                            `Name field cannot be empty!`);
+                                    } else {
+                                        Swal.showValidationMessage(
+                                            `Invalid format, please provide Reddit name as u/xyz or r/xyz`
+                                        );
+                                    }
+                                }
+                            },
+                            allowOutsideClick: () => 0
+                        }).then((data) => {
+                            data = data.value;
+                            if (data.error) {
+                                Swal.showValidationMessage(`Request failed: ${data.message}`)
+                            } else if (data.data && data.data.children && data.data.children
+                                .length > 0) {
+                                addSlides(data)
+                            } else {
+                                Swal.showValidationMessage(
+                                    "Request failed: No posts found for this user")
+                            }
+                        })
+                    }
                 }
             });
             $('.my-cor').on('afterChange', function (event, slick) {
