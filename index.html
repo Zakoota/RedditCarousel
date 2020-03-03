@@ -56,42 +56,144 @@
             top: 0;
             margin: auto
         }
-
+        #imageZoomContent {
+            text-align: center;
+        }
         #imageZoomContent img {
-            width: 98vw;
+            max-width: 100%;
         }
 
         #imageZoomContent p {
             display: none;
         }
 
-        .loader {
-            border: 16px solid #f3f3f3;
-            /* Light grey */
-            border-top: 16px solid #3498db;
-            /* Blue */
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
-            display: none;
-            z-index: 9999;
-
-            position: fixed;
-            top: -100%;
-            right: -100%;
-            left: -100%;
-            bottom: -100%;
-            margin: auto;
+        .rotated {
+            -moz-transform: rotate(90deg) /* translate(25%, 20%) */;
+            -webkit-transform: rotate(90deg) /* translate(25%, 20%) */;
+            -o-transform: rotate(90deg) /* translate(25%, 20%) */;
+            -ms-transform: rotate(90deg) /* translate(25%, 20%) */;
+            transform: rotate(90deg) /* translate(25%, 20%) */;
+            width: 100vw !important;
+            overflow: scroll !important;
         }
 
-        @keyframes spin {
+        #movingBallG {
+            display: none;
+            width: 512px;
+            height: 40px;
+
+            position: fixed;
+            /* top: -100%;
+            bottom: -100%; */
+            right: -100%;
+            left: -100%;
+            margin: auto;
+            z-index: 999;
+        }
+
+        .movingBallG {
+            background-color: rgb(255, 255, 255);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 20px;
+            -o-border-radius: 20px;
+            -ms-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            animation-name: bounce_movingBallG;
+            -o-animation-name: bounce_movingBallG;
+            -ms-animation-name: bounce_movingBallG;
+            -webkit-animation-name: bounce_movingBallG;
+            -moz-animation-name: bounce_movingBallG;
+            animation-duration: 1.5s;
+            -o-animation-duration: 1.5s;
+            -ms-animation-duration: 1.5s;
+            -webkit-animation-duration: 1.5s;
+            -moz-animation-duration: 1.5s;
+            animation-iteration-count: infinite;
+            -o-animation-iteration-count: infinite;
+            -ms-animation-iteration-count: infinite;
+            -webkit-animation-iteration-count: infinite;
+            -moz-animation-iteration-count: infinite;
+            animation-direction: normal;
+            -o-animation-direction: normal;
+            -ms-animation-direction: normal;
+            -webkit-animation-direction: normal;
+            -moz-animation-direction: normal;
+        }
+
+
+
+        @keyframes bounce_movingBallG {
             0% {
-                transform: rotate(0deg);
+                left: 0px;
+            }
+
+            50% {
+                left: 472px;
             }
 
             100% {
-                transform: rotate(360deg);
+                left: 0px;
+            }
+        }
+
+        @-o-keyframes bounce_movingBallG {
+            0% {
+                left: 0px;
+            }
+
+            50% {
+                left: 472px;
+            }
+
+            100% {
+                left: 0px;
+            }
+        }
+
+        @-ms-keyframes bounce_movingBallG {
+            0% {
+                left: 0px;
+            }
+
+            50% {
+                left: 472px;
+            }
+
+            100% {
+                left: 0px;
+            }
+        }
+
+        @-webkit-keyframes bounce_movingBallG {
+            0% {
+                left: 0px;
+            }
+
+            50% {
+                left: 472px;
+            }
+
+            100% {
+                left: 0px;
+            }
+        }
+
+        @-moz-keyframes bounce_movingBallG {
+            0% {
+                left: 0px;
+            }
+
+            50% {
+                left: 472px;
+            }
+
+            100% {
+                left: 0px;
             }
         }
     </style>
@@ -100,7 +202,10 @@
 <body>
     <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p><![endif]-->
     <div class="container">
-        <div class="loader"></div>
+        <div class="loader" id="movingBallG">
+            <div class="movingBallLineG"></div>
+            <div id="movingBallG_1" class="movingBallG"></div>
+        </div>
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="my-cor my-caro"></div>
@@ -240,7 +345,11 @@
             })
 
             $(document).on('click', '.my-cor img, #imageZoomContent img', function () {
+
                 $('#imageZoomContent').html($(this).closest('div').html());
+                if ((this.height < this.width) && (window.screen.width < window.screen.height) ) {
+                    $('#imageZoomContent img').addClass('rotated');
+                }
                 $('#imageZoom').modal('toggle');
             });
         });
