@@ -54,7 +54,8 @@
             max-height: 100%;
             position: absolute;
             top: 0;
-            margin: auto
+            margin: auto;
+            width: 15vw;
         }
 
         #imageZoomContent {
@@ -197,11 +198,19 @@
                 left: 0px;
             }
         }
+
+        #home {
+            position: absolute;
+            font-size: 20px;
+            display: none;
+            z-index: 99999;
+        }
     </style>
 </head>
 
 <body>
     <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p><![endif]-->
+    <a id="home" href="#">Home</a>
     <div class="container">
         <div class="loader" id="movingBallG">
             <div class="movingBallLineG"></div>
@@ -260,9 +269,6 @@
                         }
                         if (username.substr(0, 2) == 'm/') {
                             username = "user/" + username.substr(2);
-                        } else {
-                            username = username + '/submitted';
-                            params = "&sort=new";
                         }
                         if (username.indexOf('?') > 0) {
                             let arr = username.split('?');
@@ -272,7 +278,13 @@
                         if (username.substr(0, 2) == 'u/') {
                             username = "user/" + username.substr(2);
                         }
+                        if (username.substr(0, 5) == 'user/') {
+                            username = username + '/submitted';
+                            params = "&sort=new";
+                        }
                         username = username.replace(/\s+/gm, '');
+                        document.title = ucfirst(username.substr(username.indexOf('/') + 1)) +
+                            " - " + document.title;
                         uname = username;
                         fetchSlides();
                     } else {
@@ -292,9 +304,6 @@
                                 }
                                 if (username.substr(0, 2) == 'm/') {
                                     username = "user/" + username.substr(2);
-                                } else {
-                                    username = username + '/submitted';
-                                    params = "&sort=new";
                                 }
                                 if (username.indexOf('?') > 0) {
                                     let arr = username.split('?');
@@ -304,7 +313,16 @@
                                 if (username.substr(0, 2) == 'u/') {
                                     username = "user/" + username.substr(2);
                                 }
+                                if (username.substr(0, 5) == 'user/') {
+                                    username = username + '/submitted';
+                                    params = "&sort=new";
+                                }
                                 username = username.replace(/\s+/gm, '');
+                                window.location = window.location.href + "#" + username;
+                                document.title = ucfirst(username.substr(username.indexOf(
+                                            '/')) +
+                                        1) +
+                                    " - " + document.title;
                                 uname = username;
                                 if (username && username.match(
                                         /user\/[\d\w]+|r\/[\d\w]+/g)) {
@@ -386,9 +404,13 @@
                 }
                 $('#imageZoom').modal('toggle');
             });
+            $(document).on('click', 'a#home', function () {
+                window.location = window.location.href.substr(0, window.location.href.lastIndexOf('#'));
+            });
         });
 
         function addSlides(data) {
+            $('a#home').show();
             $('.loader').hide();
             data = data.data;
             aft = data.after ? data.after : 'EOF';
@@ -428,6 +450,10 @@
                     alert(`Request failed: ${error}`);
                 })
             }
+        }
+
+        function ucfirst(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
         }
     </script>
 </body>
