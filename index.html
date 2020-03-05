@@ -242,8 +242,33 @@
             allowedExt = [".jpeg", ".jpg", ".png", ".gif"],
             aft = null,
             uname = "",
-            dataCalled = false,
             params = '';
+
+        let dataCalled = {
+            val:false,
+            onChange: [],
+            set: function (val) {
+                if (val != this.val && this.onChange.length) {
+                    this.onChange.forEach(changeEv => {
+                        changeEv(val);
+                    });
+                }
+                this.val = val;
+            },
+            get: function () {
+                return this.val;
+            },
+            setOnChange: function (ev) {
+                this.onChange.push(ev);
+            }
+        }
+        dataCalled.setOnChange(function (val) {
+            if (val) {
+                $('.loader').show();
+            } else {
+                $('.loader').hide();
+            }
+        });
         $(document).ready(function () {
             $("body").keydown(function (e) {
                 e.keyCode && sli_cor.length > 0 && (e.keyCode == 37 || e.keyCode == 39) && sli_cor
@@ -327,6 +352,7 @@
                             }
                         })
                     }
+                    $('a#home').show();
                 }
             });
             $('.my-cor').on('afterChange', function (event, slick) {
@@ -375,8 +401,6 @@
         });
 
         function addSlides(data) {
-            $('a#home').show();
-            $('.loader').hide();
             data = data.data;
             aft = data.after ? data.after : 'EOF';
             let postArr = [];
@@ -398,15 +422,14 @@
                 sli.slickAdd(
                     '<div style="text-align: center;position: relative;top: 150px;"><h1>THE END<h1></div>')
             });
-            dataCalled = false;
+            dataCalled.set(false);
             postArr.length < 3 ? fetchSlides() :
                 null;
         }
 
         function fetchSlides() {
-            if (aft != 'EOF' && !dataCalled) {
-                dataCalled = true;
-                $('.loader').show();
+            if (aft != 'EOF' && !dataCalled.get()) {
+                dataCalled.set(true);
                 fetch(`https://www.reddit.com/${uname}/.json?limit=15&after=${aft}${params}`).then(response => {
                     if (!response.ok) {
                         throw new Error(response.status)
