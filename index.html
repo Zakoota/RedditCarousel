@@ -245,7 +245,7 @@
             params = '';
 
         let dataCalled = {
-            val:false,
+            val: false,
             onChange: [],
             set: function (val) {
                 if (val != this.val && this.onChange.length) {
@@ -412,19 +412,18 @@
                         postArr.push(post)
                     }
                 });
-            postArr.length ? postArr.forEach((post) => {
+            postArr.length && postArr.forEach((post) => {
                 sli_cor.forEach(function (sli) {
                     sli.slickAdd('<div><img data-lazy="' + post.url + '" /><p>' + post.title +
                         '</p></div>')
                 })
-            }) : null;
+            });
             aft == "EOF" && sli_cor.forEach(function (sli) {
                 sli.slickAdd(
                     '<div style="text-align: center;position: relative;top: 150px;"><h1>THE END<h1></div>')
             });
             dataCalled.set(false);
-            postArr.length < 3 ? fetchSlides() :
-                null;
+            postArr.length < 3 && fetchSlides();
         }
 
         function fetchSlides() {
@@ -442,6 +441,8 @@
         }
 
         function nameFixes(name) {
+            name = name.replace(/\s+/g, '');
+
             if (name.substr(0, 1) == '/') {
                 name = name.substr(1);
             }
@@ -460,7 +461,6 @@
                 name = arr[0];
                 params += "&" + arr[1];
             }
-            name = name.replace(/\s+/gm, '');
 
             return {
                 name: name,
