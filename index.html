@@ -352,7 +352,6 @@
                             }
                         })
                     }
-                    $('a#home').show();
                 }
             });
             $('.my-cor').on('afterChange', function (event, slick) {
@@ -401,6 +400,7 @@
         });
 
         function addSlides(data) {
+            $('a#home').show();
             data = data.data;
             aft = data.after ? data.after : 'EOF';
             let postArr = [];
