@@ -264,28 +264,11 @@
                 if (sli_cor.length > 1) {
                     if (window.location.href.indexOf('#') > 0) {
                         username = window.location.href.substr(window.location.href.indexOf('#') + 1);
-                        if (username.substr(0, 1) == '/') {
-                            username = username.substr(1);
-                        }
-                        if (username.substr(0, 2) == 'm/') {
-                            username = "user/" + username.substr(2);
-                        }
-                        if (username.indexOf('?') > 0) {
-                            let arr = username.split('?');
-                            username = arr[0];
-                            params += "&" + arr[1];
-                        }
-                        if (username.substr(0, 2) == 'u/') {
-                            username = "user/" + username.substr(2);
-                        }
-                        if (username.substr(0, 5) == 'user/') {
-                            username = username + '/submitted';
-                            params = "&sort=new";
-                        }
-                        username = username.replace(/\s+/gm, '');
-                        document.title = ucfirst(username.substr(username.indexOf('/') + 1)) +
+                        let res = nameFixes(username);
+
+                        document.title = res.title +
                             " - " + document.title;
-                        uname = username;
+                        uname = res.name;
                         fetchSlides();
                     } else {
                         swal.fire({
@@ -299,29 +282,11 @@
                             confirmButtonText: 'Go',
                             showLoaderOnConfirm: !0,
                             preConfirm: (username) => {
-                                if (username.substr(0, 1) == '/') {
-                                    username = username.substr(1);
-                                }
-                                if (username.substr(0, 2) == 'm/') {
-                                    username = "user/" + username.substr(2);
-                                }
-                                if (username.indexOf('?') > 0) {
-                                    let arr = username.split('?');
-                                    username = arr[0];
-                                    params += "&" + arr[1];
-                                }
-                                if (username.substr(0, 2) == 'u/') {
-                                    username = "user/" + username.substr(2);
-                                }
-                                if (username.substr(0, 5) == 'user/') {
-                                    username = username + '/submitted';
-                                    params = "&sort=new";
-                                }
-                                username = username.replace(/\s+/gm, '');
+                                let res = nameFixes(username);
+
+                                username = res.name;
                                 window.location = window.location.href + "#" + username;
-                                document.title = ucfirst(username.substr(username.indexOf(
-                                            '/')) +
-                                        1) +
+                                document.title = res.title +
                                     " - " + document.title;
                                 uname = username;
                                 if (username && username.match(
@@ -423,18 +388,19 @@
                         postArr.push(post)
                     }
                 });
-            postArr.length < 3 && fetchSlides();
-            postArr.length && postArr.forEach((post) => {
+            postArr.length ? postArr.forEach((post) => {
                 sli_cor.forEach(function (sli) {
                     sli.slickAdd('<div><img data-lazy="' + post.url + '" /><p>' + post.title +
                         '</p></div>')
                 })
-            });
+            }) : null;
             aft == "EOF" && sli_cor.forEach(function (sli) {
                 sli.slickAdd(
                     '<div style="text-align: center;position: relative;top: 150px;"><h1>THE END<h1></div>')
             });
             dataCalled = false;
+            postArr.length < 3 ? fetchSlides() :
+                null;
         }
 
         function fetchSlides() {
@@ -449,6 +415,34 @@
                 }).then(data => addSlides(data)).catch(error => {
                     alert(`Request failed: ${error}`);
                 })
+            }
+        }
+
+        function nameFixes(name) {
+            if (name.substr(0, 1) == '/') {
+                name = name.substr(1);
+            }
+            if (name.substr(0, 2) == 'u/') {
+                name = "user/" + name.substr(2);
+            }
+            if (name.substr(0, 5) == 'user/') {
+                name = name + '/submitted';
+                params = "&sort=new";
+            }
+            if (name.substr(0, 2) == 'm/') {
+                name = "user/" + name.substr(2);
+            }
+            if (name.indexOf('?') > 0) {
+                let arr = name.split('?');
+                name = arr[0];
+                params += "&" + arr[1];
+            }
+            name = name.replace(/\s+/gm, '');
+
+            return {
+                name: name,
+                title: ucfirst(name.substr(name.indexOf('/') + 1)) +
+                    " - " + document.title
             }
         }
 
