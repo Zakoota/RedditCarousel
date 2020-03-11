@@ -307,10 +307,10 @@
                             confirmButtonText: 'Go',
                             showLoaderOnConfirm: !0,
                             preConfirm: (username) => {
+                                window.location = window.location.href + "#" + username;
                                 let res = nameFixes(username);
 
                                 username = res.name;
-                                window.location = window.location.href + "#" + username;
                                 document.title = res.title +
                                     " - " + document.title;
                                 uname = username;
