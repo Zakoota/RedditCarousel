@@ -287,8 +287,8 @@
             $('.my-caro').on('init', function (e, slick) {
                 sli_cor.push(slick);
                 if (sli_cor.length > 1) {
-                    if (window.location.href.indexOf('#') > 0) {
-                        username = window.location.href.substr(window.location.href.indexOf('#') + 1);
+                    if (location.hash.length > 0) {
+                        username = location.hash.substr(1);
                         let res = nameFixes(username);
 
                         document.title = res.title +
@@ -307,7 +307,7 @@
                             confirmButtonText: 'Go',
                             showLoaderOnConfirm: !0,
                             preConfirm: (username) => {
-                                window.location = window.location.href + "#" + username;
+                                location.hash = "#" + username;
                                 let res = nameFixes(username);
 
                                 username = res.name;
@@ -395,7 +395,7 @@
                 $('#imageZoom').modal('toggle');
             });
             $(document).on('click', 'a#home', function () {
-                window.location = window.location.href.substr(0, window.location.href.lastIndexOf('#'));
+                window.location = location.href.substr(0, location.href.lastIndexOf('#'));
             });
         });
 
@@ -415,6 +415,10 @@
             postArr.length && postArr.forEach((post) => {
                 sli_cor.forEach(function (sli) {
                     sli.slickAdd('<div><img data-lazy="' + post.url + '" /><p>' + post.title +
+                        ' <a href="https://redd.it/' + post.id +
+                        '">[Comments]</a> ' +
+                        (location.hash.substr(1).charAt(0) != 'u' ?
+                            '<a href="javascript:void(0)" onclick="location.hash=\'#u/' + post.author + '\'; location.reload()">More from this user</a>' : '') +
                         '</p></div>')
                 })
             });
