@@ -270,6 +270,9 @@
             }
         });
         $(document).ready(function () {
+            window.onhashchange = function () {
+                location.reload();
+            }
             $("body").keydown(function (e) {
                 e.keyCode && sli_cor.length > 0 && (e.keyCode == 37 || e.keyCode == 39) && sli_cor
                     .forEach((sli) => {
@@ -415,10 +418,11 @@
             postArr.length && postArr.forEach((post) => {
                 sli_cor.forEach(function (sli) {
                     sli.slickAdd('<div><img data-lazy="' + post.url + '" /><p>' + post.title +
-                        ' <a href="https://redd.it/' + post.id +
+                        ' <a target="_blank" href="https://redd.it/' + post.id +
                         '">[Comments]</a> ' +
                         (location.hash.substr(1).charAt(0) != 'u' ?
-                            '<a href="javascript:void(0)" onclick="location.hash=\'#u/' + post.author + '\'; location.reload()">More from this user</a>' : '') +
+                            '<a href="javascript:void(0)" onclick="location.hash=\'#u/' + post
+                            .author + '\'">More from this user</a>' : '') +
                         '</p></div>')
                 })
             });
